@@ -5,10 +5,12 @@ plugins {
 }
 
 group = 'ru.ucrafter.plugins'
-version = '0.0.1'
+version = '0.0.2'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
+
+
 
 repositories {
     mavenCentral()
@@ -34,4 +36,10 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         filter ReplaceTokens, tokens: [version: version]
     }
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
