@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'ru.ucrafter.plugins'
-version = '0.0.2'
+version = '0.0.4'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -24,12 +24,13 @@ repositories {
     }
     maven {
         name = 'worldedit-repo'
-        url = ' https://maven.enginehub.org/repo/'
+        url = 'https://maven.enginehub.org/repo/'
     }
 }
 
 dependencies {
     compileOnly 'com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.5'
 }
 
 processResources {
@@ -42,4 +43,10 @@ compileJava.options.encoding = 'UTF-8'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+task getDependencies(type: Copy) {
+    //referring to the 'compile' configuration
+    from configurations.compileOnly, configurations.testCompile
+    into 'libs'
 }

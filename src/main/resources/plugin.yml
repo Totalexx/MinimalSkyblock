@@ -8,3 +8,7 @@ commands:
     description: Создаёт новый остров или телепортирует на существующий
     usage: /is
     permission: ucrafter.island
+  is invite:
+    description: Отправляет приглашение игроку присоедениться к вашему острову
+    usage: /is invite <player>
+    permission: ucrafter.island
