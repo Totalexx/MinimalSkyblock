@@ -1,0 +1,10 @@
+name: UCrafterIslands
+version: @version@
+main: ru.ucrafter.plugins.ucrafterislands.UCrafterIslands
+authors: [ Totalexx ]
+
+commands:
+  is:
+    description: Создаёт новый остров или телепортирует на существующий
+    usage: /is
+    permission: ucrafter.island
