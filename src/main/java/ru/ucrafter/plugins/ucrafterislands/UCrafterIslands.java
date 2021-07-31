@@ -1,18 +1,16 @@
 package ru.ucrafter.plugins.ucrafterislands;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import ru.ucrafter.plugins.ucrafterislands.utils.Vector2;
-
 import java.io.File;
 import java.util.logging.Logger;
+import org.bukkit.plugin.java.JavaPlugin;
+import ru.ucrafter.plugins.ucrafterislands.utils.IslandDB;
 
 public final class UCrafterIslands extends JavaPlugin {
-
     private static UCrafterIslands instance;
     private static Logger log;
+    private static IslandDB database;
 
-    @Override
-    public void onEnable(){
+    public void onEnable() {
         instance = this;
         log = getLogger();
 
@@ -20,24 +18,16 @@ public final class UCrafterIslands extends JavaPlugin {
         log.info("*    UCrafterIslands    *");
         log.info("*-----------------------*");
 
-//        Bukkit.getPluginManager().registerEvents(new Handler(), this);
-        getCommand("is").setExecutor(new Commands());
-
         YMLFiles();
-        IslandDB db = new IslandDB();
-        db.addIsland(-1, -2, "totalexx");
-        Vector2 pos = db.getIslandXYByLeader("totalexx");
-        log.info("X position:" + pos.x);
-        log.info("Y position:" + pos.y);
+        database = new IslandDB();
+        getCommand("is").setExecutor(new Commands());
     }
 
-    @Override
     public void onDisable() {
-
     }
 
     public void YMLFiles() {
-        File config = new File(getDataFolder() + File.separator + "config.yml");
+        File config = new File(this.getDataFolder() + File.separator + "config.yml");
         if (!config.exists()) {
             log.info("Файл конфигурации не найден, генерируем новый...");
             getConfig().options().copyDefaults(true);
@@ -51,5 +41,13 @@ public final class UCrafterIslands extends JavaPlugin {
 
     public static UCrafterIslands getInstance() {
         return instance;
+    }
+
+    public static IslandDB getDatabase() {
+        return database;
+    }
+
+    public static String getFromConfiguration(String name) {
+        return instance.getConfig().getString(name);
     }
 }
