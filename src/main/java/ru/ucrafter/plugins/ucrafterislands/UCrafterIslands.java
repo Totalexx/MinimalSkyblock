@@ -2,8 +2,14 @@ package ru.ucrafter.plugins.ucrafterislands;
 
 import java.io.File;
 import java.util.logging.Logger;
+
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.world.World;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandDB;
+import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition;
+import ru.ucrafter.plugins.ucrafterislands.utils.WESchematic;
 
 public final class UCrafterIslands extends JavaPlugin {
     private static UCrafterIslands instance;

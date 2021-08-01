@@ -1,13 +1,18 @@
 package ru.ucrafter.plugins.ucrafterislands;
 
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.bukkit.adapter.BukkitImplAdapter;
+import com.sk89q.worldedit.world.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandDB;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition.NextDirection;
+import ru.ucrafter.plugins.ucrafterislands.utils.WESchematic;
+
+import java.io.File;
 
 public class IslandEvents {
 
@@ -40,9 +45,11 @@ public class IslandEvents {
 
         database.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
 
-        World world = Bukkit.getWorld("okeanworld");
-        Location location = new Location(world, newIsland.x, 63, newIsland.z);
-        location.getBlock().setType(Material.GRASS);
+        File file = new File(UCrafterIslands.getInstance().getDataFolder()
+                + File.separator
+                + UCrafterIslands.getFromConfiguration("islands.name_schematic_file") + ".schematic");
+        World world = new BukkitWorld(Bukkit.getWorld("world"));
+        WESchematic.pasteClipboard(file, world, newIsland);
 
         return newIsland;
     }
