@@ -12,7 +12,6 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.registry.WorldData;
-import ru.ucrafter.plugins.ucrafterislands.UCrafterIslands;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +38,7 @@ public class WESchematic {
             EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
             Operation operation = new ClipboardHolder(clipboard, data)
                     .createPaste(session, data)
-                    .to(BlockVector.toBlockPoint(position.x, Integer.parseInt(UCrafterIslands.getFromConfiguration("islands.height")), position.z))
+                    .to(BlockVector.toBlockPoint(position.x, IslandConfig.getIslandHeight(), position.z))
                     .build();
             Operations.complete(operation);
         } catch (WorldEditException e) {

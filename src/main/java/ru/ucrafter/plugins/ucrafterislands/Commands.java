@@ -1,9 +1,13 @@
 package ru.ucrafter.plugins.ucrafterislands;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import ru.ucrafter.plugins.ucrafterislands.utils.IslandConfig;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition;
 
 public class Commands implements CommandExecutor {
@@ -16,33 +20,24 @@ public class Commands implements CommandExecutor {
             if (args.length == 0) {
                 nicknameLeader = sender.getName();
                 IslandPosition position = UCrafterIslands.getDatabase().getIslandPositionByLeader(nicknameLeader);
-                IslandPosition ip = IslandEvents.createIsland(nicknameLeader);
-                sender.sendMessage(UCrafterIslands.getFromConfiguration("messages.is_create_island") + " X:" + ip.z + " Y:" + ip.x + " nd:" + ip.nextDirection.toString());
+                if (position == null) {
+                    IslandEvents.createIsland(nicknameLeader);
+                    sender.sendMessage(IslandConfig.getString("messages.is_create_island"));
+                } else{
+                    Player player = (Player) sender;
+                    player.teleport(new Location(
+                            IslandConfig.getIslandsWorld(),
+                            position.x + IslandConfig.getInt("islands.teleport_deviation.x") + 0.5d,
+                            IslandConfig.getIslandHeight() + IslandConfig.getInt("islands.teleport_deviation.y"),
+                            position.z + +IslandConfig.getInt("islands.teleport_deviation.z") + 0.5d));
+                    sender.sendMessage(IslandConfig.getString("messages.is_home"));
+                }
                 return true;
             } else {
-                nicknameLeader = args[0];
-                byte var6 = -1;
-                switch(nicknameLeader.hashCode()) {
-                    case -1183699191:
-                        if (nicknameLeader.equals("invite")) {
-                            var6 = 0;
-                        }
-                    default:
-                        switch(var6) {
-                            case 0:
-                                if (args.length == 2) {
-                                    IslandEvents.joinPlayerToIsland(sender, args[1]);
-                                    return true;
-                                }
-
-                                return false;
-                            default:
-                                return false;
-                        }
-                }
+                return false;
             }
         } else {
-            sender.sendMessage(UCrafterIslands.getFromConfiguration("message.sender_not_a_player"));
+            sender.sendMessage(IslandConfig.getString("messages.sender_not_a_player"));
             return true;
         }
     }
