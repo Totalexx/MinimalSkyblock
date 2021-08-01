@@ -46,7 +46,7 @@ public class IslandDB {
     }
 
     public IslandPosition getIslandPositionByLeader(String nicknameLeader) {
-        return this.getIslandPosition(String.format("WHERE leader == '%s' LIMIT 1", nicknameLeader));
+        return this.getIslandPosition(String.format("WHERE leader == '%s' ORDER BY id DESC LIMIT 1", nicknameLeader));
     }
 
     public IslandPosition getPositionLastIsland() {

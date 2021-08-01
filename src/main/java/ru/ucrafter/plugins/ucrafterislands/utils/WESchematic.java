@@ -34,11 +34,15 @@ public class WESchematic {
     public static void pasteClipboard(File file, World world, IslandPosition position) {
         Clipboard clipboard = loadClipboard(file, world);
         WorldData data = world.getWorldData();
+        int x = position.x == 0 ?
+                position.x : IslandConfig.getInt("islands.size_x") * position.x + IslandConfig.getInt("islands.distance_between");
+        int z = position.z == 0 ?
+                position.z : IslandConfig.getInt("islands.size_z") * position.z + IslandConfig.getInt("islands.distance_between");
         try {
             EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
             Operation operation = new ClipboardHolder(clipboard, data)
                     .createPaste(session, data)
-                    .to(BlockVector.toBlockPoint(position.x, IslandConfig.getIslandHeight(), position.z))
+                    .to(BlockVector.toBlockPoint(x, IslandConfig.getIslandHeight(), z))
                     .build();
             Operations.complete(operation);
         } catch (WorldEditException e) {

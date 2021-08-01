@@ -19,19 +19,19 @@ public class Commands implements CommandExecutor {
             String nicknameLeader;
             if (args.length == 0) {
                 nicknameLeader = sender.getName();
-                IslandPosition position = UCrafterIslands.getDatabase().getIslandPositionByLeader(nicknameLeader);
-                if (position == null) {
+//                IslandPosition position = UCrafterIslands.getDatabase().getIslandPositionByLeader(nicknameLeader);
+//                if (position == null) {
                     IslandEvents.createIsland(nicknameLeader);
                     sender.sendMessage(IslandConfig.getString("messages.is_create_island"));
-                } else{
-                    Player player = (Player) sender;
-                    player.teleport(new Location(
-                            IslandConfig.getIslandsWorld(),
-                            position.x + IslandConfig.getInt("islands.teleport_deviation.x") + 0.5d,
-                            IslandConfig.getIslandHeight() + IslandConfig.getInt("islands.teleport_deviation.y"),
-                            position.z + +IslandConfig.getInt("islands.teleport_deviation.z") + 0.5d));
-                    sender.sendMessage(IslandConfig.getString("messages.is_home"));
-                }
+//                } else{
+//                    Player player = (Player) sender;
+//                    player.teleport(new Location(
+//                            IslandConfig.getIslandsWorld(),
+//                            position.x + IslandConfig.getInt("islands.teleport_deviation.x") + 0.5d,
+//                            IslandConfig.getIslandHeight() + IslandConfig.getInt("islands.teleport_deviation.y"),
+//                            position.z + +IslandConfig.getInt("islands.teleport_deviation.z") + 0.5d));
+//                    sender.sendMessage(IslandConfig.getString("messages.is_home"));
+//                }
                 return true;
             } else {
                 return false;
