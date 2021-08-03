@@ -1,7 +1,8 @@
 name: UCrafterIslands
 version: @version@
 main: ru.ucrafter.plugins.ucrafterislands.UCrafterIslands
-authors: [ Totalexx ]
+authors: [Totalexx]
+depend: [WorldGuard, WorldEdit]
 
 commands:
   is:

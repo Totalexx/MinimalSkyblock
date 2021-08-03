@@ -1,22 +1,20 @@
 package ru.ucrafter.plugins.ucrafterislands;
 
-import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.world.World;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import ru.ucrafter.plugins.ucrafterislands.utils.IslandConfig;
+import org.bukkit.entity.Player;
+import ru.ucrafter.plugins.ucrafterislands.utils.Config;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandDB;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition;
 import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition.NextDirection;
-import ru.ucrafter.plugins.ucrafterislands.utils.WESchematic;
-
-import java.io.File;
+import ru.ucrafter.plugins.ucrafterislands.utils.WorldEditGuardAPI;
 
 public class IslandEvents {
 
-    private static IslandDB database = UCrafterIslands.getDatabase();
+    private static final IslandDB DATABASE = UCrafterIslands.getDatabase();
 
-    public static IslandPosition createIsland(String nicknameLeader) {
-        IslandPosition newIsland = database.getPositionLastIsland();
+    public static void createIsland(String nicknameLeader) {
+        IslandPosition newIsland = DATABASE.getPositionLastIsland();
         if (newIsland != null) {
             switch(newIsland.nextDirection) {
                 case RIGHT:
@@ -39,23 +37,23 @@ public class IslandEvents {
         } else {
             newIsland = new IslandPosition(0, 0, NextDirection.TOP);
         }
-
-        database.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
-
-        File schematic = new File(UCrafterIslands.getFolder()
-                + File.separator
-                + IslandConfig.getString("islands.name_schematic_file")
-                + ".schematic");
-        World islandsWorld = new BukkitWorld(IslandConfig.getIslandsWorld());
-        WESchematic.pasteClipboard(schematic, islandsWorld, newIsland);
-
-        return newIsland;
+        DATABASE.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
+        WorldEditGuardAPI.createIsland(nicknameLeader, newIsland);
     }
 
-    public static void teleportToIsland(String nicknameLeader) {
+    public static void teleportToIsland(Player player, IslandPosition position) {
+        int islandSizeX = Config.getInt("islands.size_x");
+        int islandSizeZ = Config.getInt("islands.size_z");
+        int islandBetween = Config.getInt("islands.distance_between");
+        player.teleport(new Location(
+                Config.getIslandsWorld(),
+                (islandSizeX + islandBetween) * position.x + Config.getInt("islands.teleport_deviation.x") + 0.5d,
+                Config.getIslandHeight() + Config.getInt("islands.teleport_deviation.y"),
+                (islandSizeZ + islandBetween) * position.z + Config.getInt("islands.teleport_deviation.z") + 0.5d));
+        player.sendMessage(Config.getString("messages.is_home"));
     }
 
     public static void joinPlayerToIsland(CommandSender sender, String joinPlayer) {
-        sender.sendMessage(String.format(IslandConfig.getString("messages.invite_successfully"), joinPlayer));
+        sender.sendMessage(String.format(Config.getString("messages.invite_successfully"), joinPlayer));
     }
 }
