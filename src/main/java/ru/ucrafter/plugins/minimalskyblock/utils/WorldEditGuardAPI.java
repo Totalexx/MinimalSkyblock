@@ -20,6 +20,7 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import net.royawesome.jlibnoise.module.combiner.Min;
 import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.plugin.Plugin;
@@ -32,7 +33,7 @@ import static org.bukkit.Bukkit.getServer;
 
 public class WorldEditGuardAPI {
 
-    public static void createIsland(String nicknameLeader, IslandPosition position) {
+    public static boolean createIsland(String nicknameLeader, IslandPosition position) {
         File schematic = new File(MinimalSkyblock.getFolder()
                 + File.separator
                 + Config.getString("islands.name_schematic_file")
@@ -40,7 +41,7 @@ public class WorldEditGuardAPI {
         if (!schematic.exists()) {
             MinimalSkyblock.getLog().warning(Config.getString("islands.name_schematic_file") +
                     ".schematic not found! The island will not be created.");
-            return;
+            return false;
         }
         World islandsWorld = new BukkitWorld(Config.getIslandsWorld());
         pasteClipboard(schematic, islandsWorld, position);
@@ -54,6 +55,7 @@ public class WorldEditGuardAPI {
         int z2 = (islandSizeZ + islandBetween) * position.z - islandSizeZ / 2;
         createRegion(nicknameLeader, x1, z1, x2, z2);
         denyBuildingGlobalRegion();
+        return true;
     }
 
     public static void denyBuildingGlobalRegion() {

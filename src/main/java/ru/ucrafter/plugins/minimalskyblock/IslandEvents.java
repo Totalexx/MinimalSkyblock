@@ -39,9 +39,13 @@ public class IslandEvents {
         } else {
             newIsland = new IslandPosition(0, 0, NextDirection.TOP);
         }
-        WorldEditGuardAPI.createIsland(nicknameLeader, newIsland);
-        DATABASE.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
-        player.sendMessage(Config.getMessage("messages.is_create_island"));
+        boolean islandCreated = WorldEditGuardAPI.createIsland(nicknameLeader, newIsland);
+        if (islandCreated) {
+            DATABASE.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
+            player.sendMessage(Config.getMessage("messages.is_create_successfully"));
+        } else {
+            player.sendMessage(Config.getMessage("messages.is_create_failed"));
+        }
     }
 
     public static void teleportToIsland(Player player, IslandPosition position) {

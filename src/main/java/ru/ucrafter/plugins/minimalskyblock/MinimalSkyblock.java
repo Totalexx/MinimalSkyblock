@@ -16,10 +16,10 @@ public final class MinimalSkyblock extends JavaPlugin {
         instance = this;
         log = getLogger();
         YMLFiles();
-        logPluginInfo();
         database = new IslandDB();
         getCommand("is").setExecutor(new Commands());
         createNotFoundSchematic();
+        logPluginInfo();
     }
 
     public void onDisable() {
@@ -64,7 +64,7 @@ public final class MinimalSkyblock extends JavaPlugin {
                 + Config.getString("islands.name_schematic_file")
                 + ".schematic");
         if (!schematic.exists()) {
-            MinimalSkyblock.getInstance().saveResource("default.schematic", false);
+            instance.saveResource("default.schematic", false);
         }
         log.info("Schematic file not found. Creating...");
     }

@@ -5,12 +5,10 @@ plugins {
 }
 
 group = 'ru.ucrafter.plugins'
-version = '0.1.1'
+version = '0.1.2'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
-
-
 
 repositories {
     mavenCentral()
@@ -36,9 +34,11 @@ dependencies {
 }
 
 processResources {
-    from(sourceSets.main.resources.srcDirs) {
-        filter ReplaceTokens, tokens: [version: version]
+    from(sourceSets.main.resources.srcDirs) {}
+    from(sourceSets.main.resources.include("plugin.yml")) {
+        filter ReplaceTokens, tokens: [pluginVersion: version]
+    }
+    from(sourceSets.main.resources.include("config.yml")) {
+        filter ReplaceTokens, tokens: [pluginVersion: version]
     }
 }
-
-compileJava.options.encoding = 'UTF-8'

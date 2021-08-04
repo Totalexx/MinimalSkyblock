@@ -15,7 +15,7 @@ public class Commands implements CommandExecutor {
                 Player player = (Player) sender;
                 IslandPosition position = MinimalSkyblock.getDatabase().getIslandPositionByLeader(player.getName());
                 if (position == null) {
-                    IslandEvents.createIsland((Player) sender);
+                    IslandEvents.createIsland(player);
                 } else{
                     IslandEvents.teleportToIsland(player, position);
                 }

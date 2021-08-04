@@ -1,5 +1,5 @@
 name: MinimalSkyblock
-version: @version@
+version: @pluginVersion@
 main: ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock
 authors: [Totalexx]
 depend: [WorldGuard, WorldEdit]

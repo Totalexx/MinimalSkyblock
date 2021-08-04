@@ -18,7 +18,7 @@ public class Config {
     }
 
     public static String getString(String name) {
-        return MinimalSkyblock.getInstance().getConfig().getString(name).replace('&', '\u007a');
+        return MinimalSkyblock.getInstance().getConfig().getString(name).replace('&', '\u00a7');
     }
 
     public static boolean getBoolean(String name) {
