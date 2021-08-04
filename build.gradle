@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'ru.ucrafter.plugins'
-version = '0.1.0'
+version = '0.1.1'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -42,7 +42,3 @@ processResources {
 }
 
 compileJava.options.encoding = 'UTF-8'
-
-//tasks.withType(JavaCompile) {
-//    options.encoding = 'UTF-8'
-//}

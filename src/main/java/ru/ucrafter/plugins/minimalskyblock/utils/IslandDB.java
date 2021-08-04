@@ -1,4 +1,4 @@
-package ru.ucrafter.plugins.ucrafterislands.utils;
+package ru.ucrafter.plugins.minimalskyblock.utils;
 
 import java.io.File;
 import java.sql.Connection;
@@ -6,14 +6,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import ru.ucrafter.plugins.ucrafterislands.UCrafterIslands;
-import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition.NextDirection;
+import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
+import ru.ucrafter.plugins.minimalskyblock.utils.IslandPosition.NextDirection;
 
 public class IslandDB {
     private final String urlDB;
 
     public IslandDB() {
-        urlDB = "jdbc:sqlite:" + UCrafterIslands.getInstance().getDataFolder() + File.separator + "islands.db";
+        urlDB = "jdbc:sqlite:" + MinimalSkyblock.getInstance().getDataFolder() + File.separator + "islands.db";
 
         try {
             Class.forName("org.sqlite.JDBC").newInstance();

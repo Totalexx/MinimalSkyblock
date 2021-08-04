@@ -1,3 +1,7 @@
+settings:
+  can_not_join_player_vizit_island: false
+  print_prefix: true
+  
 messages:
   # /is invite <player>
   invite_successfully: 'Игрок %s добавлен'
@@ -7,6 +11,8 @@ messages:
   is_create_island: 'Вы обнаружили необитаемый остров, пропишите /is, чтобы приплыть на него'
   is_home: 'Плывём на остров...'
   sender_not_a_player: 'Прости, консолька :('
+  # Префикс в чате, при вызове команд
+  chat_prefix: '&b[MinimalSkyblock]&0'
 islands:
   # Мир, в котором генерируются острова
   world: 'world'
@@ -27,5 +33,6 @@ islands:
     x: 2
     y: 2
     z: 1
+# Don't change it
 version: @version@
 

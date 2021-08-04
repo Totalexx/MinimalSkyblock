@@ -1,20 +1,22 @@
-package ru.ucrafter.plugins.ucrafterislands;
+package ru.ucrafter.plugins.minimalskyblock;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.ucrafter.plugins.ucrafterislands.utils.Config;
-import ru.ucrafter.plugins.ucrafterislands.utils.IslandDB;
-import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition;
-import ru.ucrafter.plugins.ucrafterislands.utils.IslandPosition.NextDirection;
-import ru.ucrafter.plugins.ucrafterislands.utils.WorldEditGuardAPI;
+import ru.ucrafter.plugins.minimalskyblock.utils.Config;
+import ru.ucrafter.plugins.minimalskyblock.utils.IslandDB;
+import ru.ucrafter.plugins.minimalskyblock.utils.IslandPosition;
+import ru.ucrafter.plugins.minimalskyblock.utils.IslandPosition.NextDirection;
+import ru.ucrafter.plugins.minimalskyblock.utils.WorldEditGuardAPI;
 
 public class IslandEvents {
 
-    private static final IslandDB DATABASE = UCrafterIslands.getDatabase();
+    private static final IslandDB DATABASE = MinimalSkyblock.getDatabase();
 
-    public static void createIsland(String nicknameLeader) {
+    public static void createIsland(Player player) {
+        String nicknameLeader = player.getName();
         IslandPosition newIsland = DATABASE.getPositionLastIsland();
+
         if (newIsland != null) {
             switch(newIsland.nextDirection) {
                 case RIGHT:
@@ -37,8 +39,9 @@ public class IslandEvents {
         } else {
             newIsland = new IslandPosition(0, 0, NextDirection.TOP);
         }
-        DATABASE.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
         WorldEditGuardAPI.createIsland(nicknameLeader, newIsland);
+        DATABASE.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
+        player.sendMessage(Config.getMessage("messages.is_create_island"));
     }
 
     public static void teleportToIsland(Player player, IslandPosition position) {
@@ -50,7 +53,7 @@ public class IslandEvents {
                 (islandSizeX + islandBetween) * position.x + Config.getInt("islands.teleport_deviation.x") + 0.5d,
                 Config.getIslandHeight() + Config.getInt("islands.teleport_deviation.y"),
                 (islandSizeZ + islandBetween) * position.z + Config.getInt("islands.teleport_deviation.z") + 0.5d));
-        player.sendMessage(Config.getString("messages.is_home"));
+        player.sendMessage(Config.getMessage("messages.is_home"));
     }
 
     public static void joinPlayerToIsland(CommandSender sender, String joinPlayer) {

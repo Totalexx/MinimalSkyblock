@@ -1,4 +1,4 @@
-package ru.ucrafter.plugins.ucrafterislands.utils;
+package ru.ucrafter.plugins.minimalskyblock.utils;
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.EditSession;
@@ -16,13 +16,11 @@ import com.sk89q.worldedit.world.registry.WorldData;
 import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.Flag;
-import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import ru.ucrafter.plugins.ucrafterislands.UCrafterIslands;
+import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.plugin.Plugin;
 
@@ -35,12 +33,14 @@ import static org.bukkit.Bukkit.getServer;
 public class WorldEditGuardAPI {
 
     public static void createIsland(String nicknameLeader, IslandPosition position) {
-        File schematic = new File(UCrafterIslands.getFolder()
+        File schematic = new File(MinimalSkyblock.getFolder()
                 + File.separator
                 + Config.getString("islands.name_schematic_file")
                 + ".schematic");
         if (!schematic.exists()) {
-            UCrafterIslands.getInstance().saveResource("/default.schematic", false);
+            MinimalSkyblock.getLog().warning(Config.getString("islands.name_schematic_file") +
+                    ".schematic not found! The island will not be created.");
+            return;
         }
         World islandsWorld = new BukkitWorld(Config.getIslandsWorld());
         pasteClipboard(schematic, islandsWorld, position);
@@ -53,13 +53,15 @@ public class WorldEditGuardAPI {
         int x2 = (islandSizeX + islandBetween) * position.x - islandSizeX / 2;
         int z2 = (islandSizeZ + islandBetween) * position.z - islandSizeZ / 2;
         createRegion(nicknameLeader, x1, z1, x2, z2);
-        denyPutBlockGlobalRegion();
+        denyBuildingGlobalRegion();
     }
 
-    public static void denyPutBlockGlobalRegion() {
+    public static void denyBuildingGlobalRegion() {
         RegionContainer container = getWorldGuard().getRegionContainer();
         RegionManager regions = container.get(Config.getIslandsWorld());
-        regions.getRegion("__global__").setFlag(DefaultFlag.BUILD, StateFlag.State.DENY);
+        ProtectedRegion global = regions.getRegion("__global__");
+        global.setFlag(DefaultFlag.BUILD, StateFlag.State.DENY);
+        global.setFlag(DefaultFlag.PVP, StateFlag.State.DENY);
     }
 
     private static Clipboard loadClipboard(File file, World world) {
@@ -77,6 +79,10 @@ public class WorldEditGuardAPI {
 
     private static void pasteClipboard(File file, World world, IslandPosition position) {
         Clipboard clipboard = loadClipboard(file, world);
+        if (clipboard == null) {
+            MinimalSkyblock.getLog().warning(Config.getString("Load schematic failed. The island will not be created."));
+            return;
+        }
         WorldData data = world.getWorldData();
         int x = position.x == 0 ?
                 position.x : Config.getInt("islands.size_x") * position.x + Config.getInt("islands.distance_between");
@@ -98,6 +104,7 @@ public class WorldEditGuardAPI {
         BlockVector min = new BlockVector(posX1, 0, posZ1);
         BlockVector max = new BlockVector(posX2, 255, posZ2);
         ProtectedRegion region = new ProtectedCuboidRegion("is_" + nicknameLeader, min, max);
+        region.setFlag(DefaultFlag.PVP, StateFlag.State.DENY);
         DefaultDomain member = region.getMembers();
         member.addPlayer(nicknameLeader);
 

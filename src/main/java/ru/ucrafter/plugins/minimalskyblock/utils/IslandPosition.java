@@ -1,4 +1,4 @@
-package ru.ucrafter.plugins.ucrafterislands.utils;
+package ru.ucrafter.plugins.minimalskyblock.utils;
 
 public class IslandPosition {
     public enum NextDirection {

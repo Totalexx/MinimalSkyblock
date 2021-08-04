@@ -1,6 +1,6 @@
-name: UCrafterIslands
+name: MinimalSkyblock
 version: @version@
-main: ru.ucrafter.plugins.ucrafterislands.UCrafterIslands
+main: ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock
 authors: [Totalexx]
 depend: [WorldGuard, WorldEdit]
 
