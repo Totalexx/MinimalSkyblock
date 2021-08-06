@@ -59,11 +59,15 @@ public class WorldEditGuardAPI {
     }
 
     public static void denyBuildingGlobalRegion() {
-        RegionContainer container = getWorldGuard().getRegionContainer();
-        RegionManager regions = container.get(Config.getIslandsWorld());
-        ProtectedRegion global = regions.getRegion("__global__");
+        ProtectedRegion global = getRegion("__global__");
         global.setFlag(DefaultFlag.BUILD, StateFlag.State.DENY);
         global.setFlag(DefaultFlag.PVP, StateFlag.State.DENY);
+    }
+
+    private static ProtectedRegion getRegion(String id) {
+        RegionContainer container = getWorldGuard().getRegionContainer();
+        RegionManager regions = container.get(Config.getIslandsWorld());
+        return regions.getRegion(id);
     }
 
     private static Clipboard loadClipboard(File file, World world) {
@@ -77,7 +81,6 @@ public class WorldEditGuardAPI {
         }
         return clipboard;
     }
-
 
     private static void pasteClipboard(File file, World world, IslandPosition position) {
         Clipboard clipboard = loadClipboard(file, world);

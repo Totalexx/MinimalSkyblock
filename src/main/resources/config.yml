@@ -1,15 +1,29 @@
 settings:
-  can_not_join_player_vizit_island: false
+  can_not_member_tp_island: false
   print_prefix: true
 messages:
-  # /is invite <player>
-  invite_successfully: 'Игрок %s добавлен'
-  invite_player_not_found: 'Игрок не найден'
-  invite_already_added: 'Игрок уже присоединился к вашему острову'
+  is_not_found: 'У вас нет острова'
+  is_player_not_found: 'Игрок %s не найден'
   # /is
   is_create_successfully: 'Вы обнаружили необитаемый остров, пропишите /is, чтобы приплыть на него'
   is_create_failed: 'Произошла ошибка при создании острова...'
   is_home: 'Плывём на остров...'
+  # /is tp <player>
+  is_tp_successfully: 'Вы приплыли на остров игрока %s'
+  is_tp_failed_island_not_found: 'У игрока %s нет острова'
+  is_tp_failed_player_not_a_member: 'Вы не можете приплыть на остров игрока %s'
+  # /is allowvisits <boolean>
+  is_allowvisits_true: 'Теперь любые игроки могут посетить ваш остров'
+  is_allowvisits_false: 'Теперь только члены острова могут его посетить'
+  # /is join <player>
+  is_join_successfully: 'Игрок %s присоединился к острову'
+  is_join_yourself: 'Вы не можете сделать себя членом острова, так как являетесь его лидером'
+  is_join_already_added: 'Игрок %s уже присоединился к вашему острову'
+  # /is kick <player>
+  is_kick_successfully: 'Игрок %s исключён с острова'
+  is_kick_yourself: 'Вы не можете исключить себя с острова, так как являетесь его лидером'
+  is_kick_player_not_added: 'Игрок %s не является членом острова'
+  # console
   sender_not_a_player: 'Прости, консолька :('
   # Префикс в чате, при вызове команд
   chat_prefix: '&b&l[MinimalSkyblock]&f&r '
