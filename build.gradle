@@ -5,13 +5,17 @@ plugins {
 }
 
 group = 'ru.ucrafter.plugins'
-version = '0.2.1'
+version = '0.2.2'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 repositories {
     mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
     maven {
         name = 'papermc-repo'
         url = 'https://papermc.io/repo/repository/maven-public/'
@@ -27,6 +31,7 @@ repositories {
 }
 
 dependencies {
+//    compileOnly(files("libs/Crucible-1.7.10-5.3.jar"))
     compileOnly 'com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.5'
     compileOnly 'com.sk89q.worldedit:worldedit-core:6.1.4-SNAPSHOT'

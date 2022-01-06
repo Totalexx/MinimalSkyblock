@@ -16,11 +16,9 @@ import java.util.List;
 
 public class IslandEvents {
 
-    private static final IslandDB DATABASE = MinimalSkyblock.getDatabase();
-
     public static void createIsland(Player player) {
         String nicknameLeader = player.getName();
-        IslandPosition newIsland = DATABASE.getPositionLastIsland();
+        IslandPosition newIsland = IslandDB.getPositionLastIsland();
 
         if (newIsland != null) {
             switch(newIsland.nextDirection) {
@@ -46,7 +44,7 @@ public class IslandEvents {
         }
         boolean islandCreated = WorldEditGuardAPI.createIsland(nicknameLeader, newIsland);
         if (islandCreated) {
-            DATABASE.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
+            IslandDB.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
             player.sendMessage(Config.getMessage("is_create_successfully"));
         } else {
             player.sendMessage(Config.getMessage("is_create_failed"));
@@ -54,8 +52,8 @@ public class IslandEvents {
     }
 
     public static void setCanAnyoneVisit(Player player, boolean canAnyoneVisit) {
-        if (DATABASE.hasIsland(player.getName())) {
-            DATABASE.setAnyoneVisitIsland(player.getName(), canAnyoneVisit);
+        if (IslandDB.hasIsland(player.getName())) {
+            IslandDB.setAnyoneVisitIsland(player.getName(), canAnyoneVisit);
             String message = canAnyoneVisit ? Config.getMessage("is_allowvisits_true") :
                     Config.getMessage("is_allowvisits_false");
             player.sendMessage(message);
@@ -70,7 +68,7 @@ public class IslandEvents {
     }
 
     public static void teleportToIsland(Player player, String nicknameLeader) {
-        IslandPosition position = DATABASE.getIslandPositionByLeader(nicknameLeader);
+        IslandPosition position = IslandDB.getIslandPositionByLeader(nicknameLeader);
         if (position == null) {
             player.sendMessage(Config.getMessage("is_tp_failed_island_not_found", nicknameLeader));
             return;
@@ -80,8 +78,8 @@ public class IslandEvents {
             return;
         }
         if (Config.getBoolean("settings.can_not_member_tp_island") ||
-                DATABASE.canAnyoneVisitIsland(nicknameLeader) ||
-                DATABASE.isMemberIsland(nicknameLeader, player.getName())) {
+                IslandDB.canAnyoneVisitIsland(nicknameLeader) ||
+                IslandDB.isMemberIsland(nicknameLeader, player.getName())) {
             teleportToIsland(player, position);
             player.sendMessage(Config.getMessage("is_tp_successfully", nicknameLeader));
         } else {
@@ -91,7 +89,7 @@ public class IslandEvents {
 
     public static void joinPlayerToIsland(Player player, String joinPlayer) {
         String nicknameLeader = player.getName();
-        if (DATABASE.hasIsland(nicknameLeader)) {
+        if (IslandDB.hasIsland(nicknameLeader)) {
             if (player.getName().equalsIgnoreCase(joinPlayer)) {
                 player.sendMessage(Config.getMessage("is_join_yourself", joinPlayer));
                 return;
@@ -100,13 +98,14 @@ public class IslandEvents {
                 player.sendMessage(Config.getMessage("is_player_not_found", joinPlayer));
                 return;
             }
-            List<String> members = DATABASE.getMembers(nicknameLeader);
+            List<String> members = IslandDB.getMembers(nicknameLeader);
             if (members.contains(joinPlayer)){
                 player.sendMessage(Config.getMessage("is_join_already_added", joinPlayer));
                 return;
             }
             members.add(joinPlayer);
-            DATABASE.setMembers(nicknameLeader, members);
+            IslandDB.setMembers(nicknameLeader, members);
+            WorldEditGuardAPI.joinPlayerToRegion(nicknameLeader, joinPlayer);
             player.sendMessage(Config.getMessage("is_join_successfully", joinPlayer));
         } else {
             playerHasNotIsland(player);
@@ -115,15 +114,16 @@ public class IslandEvents {
 
     public static void kickPlayerToIsland(Player player, String kickPlayer) {
         String nicknameLeader = player.getName();
-        if (DATABASE.hasIsland(nicknameLeader)) {
+        if (IslandDB.hasIsland(nicknameLeader)) {
             if (player.getName().equalsIgnoreCase(kickPlayer)) {
                 player.sendMessage(Config.getMessage("is_kick_yourself"));
                 return;
             }
-            List<String> members = DATABASE.getMembers(nicknameLeader);
+            List<String> members = IslandDB.getMembers(nicknameLeader);
             if (members.contains(kickPlayer)){
                 members.remove(kickPlayer);
-                DATABASE.setMembers(nicknameLeader, members);
+                IslandDB.setMembers(nicknameLeader, members);
+                WorldEditGuardAPI.kickPlayerToRegion(nicknameLeader, kickPlayer);
                 player.sendMessage(Config.getMessage("is_kick_successfully", kickPlayer));
             } else {
                 player.sendMessage(Config.getMessage("is_kick_player_not_added", kickPlayer));

@@ -1,38 +1,36 @@
 package ru.ucrafter.plugins.minimalskyblock;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.ucrafter.plugins.minimalskyblock.utils.Config;
 import ru.ucrafter.plugins.minimalskyblock.utils.IslandDB;
+import ru.ucrafter.plugins.minimalskyblock.utils.WorldEditGuardAPI;
 
 public final class MinimalSkyblock extends JavaPlugin {
+
     private static MinimalSkyblock instance;
     private static Logger log;
-    private static IslandDB database;
 
     public void onEnable() {
         instance = this;
         log = getLogger();
-        ConfigFile();
-        database = new IslandDB();
-        getCommand("is").setExecutor(new Commands());
+
+        saveDefaultConfig();
         createNotFoundSchematic();
+        IslandDB.createDB();
+
+        getCommand("is").setExecutor(new Commands());
+        WorldEditGuardAPI.setFlagsGlobalRegion();
+
         logPluginInfo();
     }
 
-    public void onDisable() {
-    }
-
-    public void ConfigFile() {
-        File config = new File(this.getDataFolder() + File.separator + "config.yml");
-        if (!config.exists()) {
-            log.info("Config.yml file not found. Creating...");
-            getConfig().options().copyDefaults(true);
-            saveDefaultConfig();
-        }
-    }
+    public void onDisable() {}
 
     public static Logger getLog() {
         return log;
@@ -40,10 +38,6 @@ public final class MinimalSkyblock extends JavaPlugin {
 
     public static MinimalSkyblock getInstance() {
         return instance;
-    }
-
-    public static IslandDB getDatabase() {
-        return database;
     }
 
     public static File getFolder() {
