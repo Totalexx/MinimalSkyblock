@@ -15,12 +15,14 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.registry.WorldData;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.GlobalProtectedRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginAwareness;
 import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.plugin.Plugin;
@@ -29,7 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class WorldEditGuardAPI {
+public class WorldEditGuard {
 
     public static boolean createIsland(String nicknameLeader, IslandPosition position) {
         File schematic = new File(MinimalSkyblock.getFolder()
@@ -79,8 +81,26 @@ public class WorldEditGuardAPI {
         getRegionManager().getRegion("is_" + nicknameLeader).getMembers().removePlayer(kickPlayer);
     }
 
-    public static void regenerationRegion() {
-        //regen
+    public static boolean getPVP(String nicknameLeader) {
+        ProtectedRegion region = getRegionManager().getRegion("is_" + nicknameLeader);
+        return region.getFlag(DefaultFlag.PVP) == StateFlag.State.ALLOW ? true : false;
+    }
+
+    public static void changePVP(String nicknameLeader) {
+        ProtectedRegion region = getRegionManager().getRegion("is_" + nicknameLeader);
+        StateFlag.State pvpFlag = region.getFlag(DefaultFlag.PVP) == StateFlag.State.ALLOW ?
+                StateFlag.State.DENY : StateFlag.State.ALLOW;
+        region.setFlag(DefaultFlag.PVP, pvpFlag);
+    }
+
+    public static void softDeleteIsland(String nicknameLeader) {
+        ProtectedRegion region = getRegionManager().getRegion("is_" + nicknameLeader);
+        BlockVector min = region.getMinimumPoint();
+        BlockVector max = region.getMaximumPoint();
+        region = new ProtectedCuboidRegion("sd_" + nicknameLeader + "_" + (int)(Math.random() * 1000000d), min, max);
+        region.setFlag(DefaultFlag.PVP, StateFlag.State.DENY);
+        getRegionManager().removeRegion("is_" + nicknameLeader);
+        getRegionManager().addRegion(region);
     }
 
     private static Clipboard loadClipboard(File file, World world) {
@@ -105,10 +125,14 @@ public class WorldEditGuardAPI {
             return;
         }
 
+        int sizeX = Config.getInt("islands.size_x");
+        int sizeZ = Config.getInt("islands.size_z");
+        int between = Config.getInt("islands.distance_between");
+
         int x = position.x == 0 ?
-                position.x : Config.getInt("islands.size_x") * position.x + Config.getInt("islands.distance_between");
+                position.x : (sizeX + between) * position.x;
         int z = position.z == 0 ?
-                position.z : Config.getInt("islands.size_z") * position.z + Config.getInt("islands.distance_between");
+                position.z : (sizeZ + between) * position.z;
 
         try {
             WorldData data = world.getWorldData();

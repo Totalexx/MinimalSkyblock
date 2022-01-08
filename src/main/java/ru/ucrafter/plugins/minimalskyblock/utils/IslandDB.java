@@ -1,13 +1,11 @@
 package ru.ucrafter.plugins.minimalskyblock.utils;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -15,6 +13,12 @@ import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
 import ru.ucrafter.plugins.minimalskyblock.utils.IslandPosition.NextDirection;
 
 public class IslandDB {
+
+    public enum VisitStatus{
+        ANYBODY,
+        BY_INVITATION,
+        NOBODY
+    }
 
     private static final String URL_DB = "jdbc:sqlite:"
             + MinimalSkyblock.getInstance().getDataFolder()
@@ -30,7 +34,17 @@ public class IslandDB {
 
             Statement statement = openConnection();
 
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS islands (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `posX` INTEGER, `poxZ` INTEGER, `leader` VARCHAR, `members` VARCHAR DEFAULT NULL, `nextDirection` VARCHAR DEFAULT 'TOP', `canAnyoneVisit` BOOLEAN DEFAULT FALSE)");
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS islands " +
+                    "(`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "`posX` INTEGER, " +
+                    "`poxZ` INTEGER, " +
+                    "`leader` VARCHAR, " +
+                    "`members` VARCHAR DEFAULT NULL, " +
+                    "`nextDirection` VARCHAR DEFAULT 'TOP', " +
+                    "`canVisitStatus` VARCHAR DEFAULT 'BY_INVITATION', " +
+                    "`softDelete` INTEGER DEFAULT 0," +
+                    "`timestamp` DATETIME)");
 
             closeConnection(statement);
         } catch (Exception e) {
@@ -42,7 +56,14 @@ public class IslandDB {
         try {
             Statement statement = openConnection();
 
-            statement.executeUpdate(String.format("INSERT INTO islands (posX, poxZ, nextDirection, leader) VALUES (%d, %d, '%s', '%s')", posX, poxZ, nextDirection, leader));
+            statement.executeUpdate(
+                    String.format(
+                            "INSERT INTO islands (posX, poxZ, nextDirection, leader, timestamp) VALUES (%d, %d, '%s', '%s', '%s')",
+                            posX,
+                            poxZ,
+                            nextDirection,
+                            leader,
+                            new Date()));
 
             closeConnection(statement);
         } catch (SQLException e) {
@@ -58,7 +79,11 @@ public class IslandDB {
         try {
             Statement statement = openConnection();
 
-            statement.executeUpdate(String.format("UPDATE islands SET `canAnyoneVisit` = '%b' WHERE `leader` = '%s'", canAnyoneVisit, nicknameLeader));
+            statement.executeUpdate(
+                    String.format(
+                            "UPDATE islands SET `canAnyoneVisit` = '%b' WHERE `leader` = '%s'",
+                            canAnyoneVisit,
+                            nicknameLeader));
 
             closeConnection(statement);
         } catch (SQLException e) {
@@ -70,23 +95,47 @@ public class IslandDB {
         try {
             Statement statement = openConnection();
 
-            ResultSet result = statement.executeQuery(String.format("SELECT id FROM islands WHERE leader == '%s'", nicknameLeader));
-            boolean canAnyoneVisit = result.isBeforeFirst();
+            ResultSet result = statement.executeQuery(
+                    String.format("SELECT id FROM islands WHERE leader = '%s' AND softDelete != 1", nicknameLeader));
+            boolean hasIsland = result.isBeforeFirst();
 
             closeConnection(statement);
 
-            return canAnyoneVisit;
+            return hasIsland;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
+    public static VisitStatus getVisitStatus(String nicknameLeader) {
+        try {
+            Statement statement = openConnection();
+
+            ResultSet result = statement.executeQuery(
+                    String.format("SELECT canVisitStatus FROM islands WHERE leader = '%s'", nicknameLeader));
+
+            VisitStatus visitStatus = VisitStatus.NOBODY;
+            if (result.isBeforeFirst()) {
+                visitStatus = VisitStatus.valueOf(result.getString("canVisitStatus"));
+            }
+
+            closeConnection(statement);
+
+            return visitStatus;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return VisitStatus.NOBODY;
+        }
+    }
+
+    @Deprecated
     public static boolean canAnyoneVisitIsland(String nicknameLeader) {
         try {
             Statement statement = openConnection();
 
-            ResultSet result = statement.executeQuery(String.format("SELECT canAnyoneVisit FROM islands WHERE leader == '%s'", nicknameLeader));
+            ResultSet result = statement.executeQuery(
+                    String.format("SELECT canAnyoneVisit FROM islands WHERE leader = '%s'", nicknameLeader));
             boolean canAnyoneVisit = false;
             if (result.isBeforeFirst()) {
                 canAnyoneVisit = Boolean.parseBoolean(result.getString("canAnyoneVisit"));
@@ -102,7 +151,7 @@ public class IslandDB {
     }
 
     public static IslandPosition getIslandPositionByLeader(String nicknameLeader) {
-        return getIslandPosition(String.format("WHERE leader == '%s'", nicknameLeader));
+        return getIslandPosition(String.format("WHERE softDelete != 1 AND leader == '%s'", nicknameLeader));
     }
 
     public static IslandPosition getPositionLastIsland() {
@@ -117,7 +166,8 @@ public class IslandDB {
             IslandPosition position = null;
             if (result.isBeforeFirst()) {
                 position = new IslandPosition(result.getInt("posX"),
-                        result.getInt("poxZ"), NextDirection.valueOf(result.getString("nextDirection")));
+                        result.getInt("poxZ"),
+                        NextDirection.valueOf(result.getString("nextDirection")));
             }
 
             closeConnection(statement);
@@ -132,7 +182,10 @@ public class IslandDB {
         try {
             Statement statement = openConnection();
 
-            ResultSet result = statement.executeQuery(String.format("SELECT members FROM islands WHERE leader == '%s'", nicknameLeader));
+            ResultSet result = statement.executeQuery(
+                    String.format(
+                            "SELECT members FROM islands WHERE leader = '%s'",
+                            nicknameLeader));
             List<String> members = new ArrayList<>();
 
             if (result.isBeforeFirst()) {
@@ -151,6 +204,67 @@ public class IslandDB {
         }
     }
 
+//    public static boolean getPVP(String nicknameLeader) {
+//        try {
+//            Statement statement = openConnection();
+//
+//            ResultSet result = statement.executeQuery(
+//                    String.format(
+//                            "SELECT canPVP FROM islands WHERE `leader` = '%s'",
+//                            nicknameLeader));
+//            boolean canPVP = false;
+//            if (result.isBeforeFirst()) {
+//                canPVP = Boolean.parseBoolean(result.getString("canPVP"));
+//            }
+//
+//            closeConnection(statement);
+//            return canPVP;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
+//
+//    public static void changePVP(String nicknameLeader) {
+//        try {
+//            Statement statement = openConnection();
+//
+//            ResultSet result = statement.executeQuery(
+//                    String.format(
+//                            "SELECT canPVP FROM islands WHERE `leader` = '%s'",
+//                            nicknameLeader));
+//            boolean canPVP = false;
+//            if (result.isBeforeFirst()) {
+//                 canPVP = !Boolean.parseBoolean(result.getString("canPVP"));
+//            }
+//
+//            statement.executeUpdate(
+//                    String.format(
+//                            "UPDATE islands SET `canPVP` = '%b' WHERE `leader` = '%s'",
+//                            canPVP,
+//                            nicknameLeader));
+//
+//            closeConnection(statement);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    public static void deleteIsland(String nicknameLeader) {
+        try {
+            Statement statement = openConnection();
+
+            statement.executeUpdate(
+                    String.format(
+                            "UPDATE islands SET `softDelete` = 1 WHERE `leader` = '%s'",
+                            nicknameLeader));
+
+            closeConnection(statement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void setMembers(String nicknameLeader, List<String> members) {
         try {
             Statement statement = openConnection();
@@ -160,7 +274,11 @@ public class IslandDB {
                 sjMembers.add(member);
             }
 
-            statement.executeUpdate(String.format("UPDATE islands SET `members` = '%s' WHERE `leader` = '%s'", sjMembers, nicknameLeader));
+            statement.executeUpdate(
+                    String.format(
+                            "UPDATE islands SET `members` = '%s' WHERE `leader` = '%s'",
+                            sjMembers,
+                            nicknameLeader));
 
             closeConnection(statement);
         } catch (SQLException e) {

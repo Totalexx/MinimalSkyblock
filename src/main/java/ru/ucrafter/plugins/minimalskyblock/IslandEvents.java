@@ -2,16 +2,13 @@ package ru.ucrafter.plugins.minimalskyblock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.ucrafter.plugins.minimalskyblock.utils.Config;
 import ru.ucrafter.plugins.minimalskyblock.utils.IslandDB;
 import ru.ucrafter.plugins.minimalskyblock.utils.IslandPosition;
 import ru.ucrafter.plugins.minimalskyblock.utils.IslandPosition.NextDirection;
-import ru.ucrafter.plugins.minimalskyblock.utils.WorldEditGuardAPI;
+import ru.ucrafter.plugins.minimalskyblock.utils.WorldEditGuard;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class IslandEvents {
@@ -42,7 +39,7 @@ public class IslandEvents {
         } else {
             newIsland = new IslandPosition(0, 0, NextDirection.TOP);
         }
-        boolean islandCreated = WorldEditGuardAPI.createIsland(nicknameLeader, newIsland);
+        boolean islandCreated = WorldEditGuard.createIsland(nicknameLeader, newIsland);
         if (islandCreated) {
             IslandDB.addIsland(newIsland.x, newIsland.z, newIsland.nextDirection.toString(), nicknameLeader);
             player.sendMessage(Config.getMessage("is_create_successfully"));
@@ -62,8 +59,8 @@ public class IslandEvents {
         }
     }
 
-    public static void teleportToMyIsland(Player player, IslandPosition position) {
-        teleportToIsland(player, position);
+    public static void teleportToMyIsland(Player player) {
+        teleportToIsland(player, IslandDB.getIslandPositionByLeader(player.getName()));
         player.sendMessage(Config.getMessage("is_home"));
     }
 
@@ -74,7 +71,7 @@ public class IslandEvents {
             return;
         }
         if (player.getName().equalsIgnoreCase(nicknameLeader)) {
-            teleportToMyIsland(player, position);
+            teleportToMyIsland(player);
             return;
         }
         if (Config.getBoolean("settings.can_not_member_tp_island") ||
@@ -105,11 +102,20 @@ public class IslandEvents {
             }
             members.add(joinPlayer);
             IslandDB.setMembers(nicknameLeader, members);
-            WorldEditGuardAPI.joinPlayerToRegion(nicknameLeader, joinPlayer);
+            WorldEditGuard.joinPlayerToRegion(nicknameLeader, joinPlayer);
             player.sendMessage(Config.getMessage("is_join_successfully", joinPlayer));
         } else {
             playerHasNotIsland(player);
         }
+    }
+
+    public static void deleteIsland(Player player) {
+        IslandDB.deleteIsland(player.getName());
+        WorldEditGuard.softDeleteIsland(player.getName());
+        player.getInventory().clear();
+        player.getEnderChest().clear();
+        player.sendMessage(Config.getMessage("is_delete"));
+        player.setHealth(0);
     }
 
     public static void kickPlayerToIsland(Player player, String kickPlayer) {
@@ -123,7 +129,7 @@ public class IslandEvents {
             if (members.contains(kickPlayer)){
                 members.remove(kickPlayer);
                 IslandDB.setMembers(nicknameLeader, members);
-                WorldEditGuardAPI.kickPlayerToRegion(nicknameLeader, kickPlayer);
+                WorldEditGuard.kickPlayerToRegion(nicknameLeader, kickPlayer);
                 player.sendMessage(Config.getMessage("is_kick_successfully", kickPlayer));
             } else {
                 player.sendMessage(Config.getMessage("is_kick_player_not_added", kickPlayer));
@@ -147,5 +153,9 @@ public class IslandEvents {
 
     private static void playerHasNotIsland(Player player) {
         player.sendMessage(Config.getMessage("is_not_found"));
+    }
+
+    public static void setSpawnPoint() {
+
     }
 }

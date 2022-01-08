@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
 
+import java.util.List;
+
 public class Config {
     public static World getIslandsWorld() {
         return Bukkit.getWorld(getString("islands.world"));
@@ -18,7 +20,7 @@ public class Config {
     }
 
     public static String getString(String name, Object... args) {
-        return String.format(MinimalSkyblock.getInstance().getConfig().getString(name).replace('&', '\u00a7'), args);
+        return String.format(MinimalSkyblock.getInstance().getConfig().getString(name).replaceAll("&", "\u00a7"), args);
     }
 
     public static boolean getBoolean(String name) {
@@ -30,4 +32,10 @@ public class Config {
         return getBoolean("settings.print_prefix") ?
                 getString("messages.chat_prefix") + getString(message, args) : getString(message, args);
     }
+    public static List<String> getList(String name) {
+        List<String> list = MinimalSkyblock.getInstance().getConfig().getStringList(name);
+        list.replaceAll(s -> s.replaceAll("&", "\u00a7"));
+        return list;
+    }
+
 }

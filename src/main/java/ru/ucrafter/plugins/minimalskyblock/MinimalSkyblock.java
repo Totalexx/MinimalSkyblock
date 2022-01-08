@@ -1,15 +1,14 @@
 package ru.ucrafter.plugins.minimalskyblock;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.ucrafter.plugins.minimalskyblock.gui.InventoryGUIListener;
 import ru.ucrafter.plugins.minimalskyblock.utils.Config;
 import ru.ucrafter.plugins.minimalskyblock.utils.IslandDB;
-import ru.ucrafter.plugins.minimalskyblock.utils.WorldEditGuardAPI;
+import ru.ucrafter.plugins.minimalskyblock.utils.WorldEditGuard;
 
 public final class MinimalSkyblock extends JavaPlugin {
 
@@ -24,8 +23,9 @@ public final class MinimalSkyblock extends JavaPlugin {
         createNotFoundSchematic();
         IslandDB.createDB();
 
+        Bukkit.getPluginManager().registerEvents(new InventoryGUIListener(), this);
         getCommand("is").setExecutor(new Commands());
-        WorldEditGuardAPI.setFlagsGlobalRegion();
+        WorldEditGuard.setFlagsGlobalRegion();
 
         logPluginInfo();
     }
