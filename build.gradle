@@ -4,8 +4,8 @@ plugins {
     id 'java'
 }
 
-group = 'ru.ucrafter.plugins'
-version = '0.2.3'
+group = 'ru.totalexx.plugins'
+version = '0.3.0'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'

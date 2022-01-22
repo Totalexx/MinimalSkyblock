@@ -1,4 +1,4 @@
-package ru.ucrafter.plugins.minimalskyblock.gui;
+package ru.totalexx.plugins.minimalskyblock.gui;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

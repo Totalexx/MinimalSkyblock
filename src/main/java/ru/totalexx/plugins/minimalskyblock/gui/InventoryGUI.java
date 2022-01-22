@@ -1,4 +1,4 @@
-package ru.ucrafter.plugins.minimalskyblock.gui;
+package ru.totalexx.plugins.minimalskyblock.gui;
 
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -6,7 +6,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
 
 import java.util.List;
 

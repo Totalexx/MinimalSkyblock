@@ -1,6 +1,7 @@
-package ru.ucrafter.plugins.minimalskyblock.utils;
+package ru.totalexx.plugins.minimalskyblock.utils;
 
 public class IslandPosition {
+
     public enum NextDirection {
         RIGHT {
             public IslandPosition.NextDirection rotateDirection() {
@@ -26,18 +27,19 @@ public class IslandPosition {
         public abstract IslandPosition.NextDirection rotateDirection();
     }
 
+    public int id;
     public int x;
     public int z;
     public NextDirection nextDirection;
 
-    public IslandPosition(int x, int z) {
+    public IslandPosition(int id, int x, int z) {
+        this.id = id;
         this.x = x;
         this.z = z;
     }
 
-    public IslandPosition(int x, int z, NextDirection nextDirection) {
-        this(x, z);
+    public IslandPosition(int id, int x, int z, NextDirection nextDirection) {
+        this(id, x, z);
         this.nextDirection = nextDirection;
     }
-
 }

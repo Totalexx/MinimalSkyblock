@@ -1,12 +1,12 @@
-package ru.ucrafter.plugins.minimalskyblock.utils;
+package ru.totalexx.plugins.minimalskyblock.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
+import ru.totalexx.plugins.minimalskyblock.MinimalSkyblock;
 
 import java.util.List;
 
-public class Config {
+public final class Config {
     public static World getIslandsWorld() {
         return Bukkit.getWorld(getString("islands.world"));
     }
@@ -36,6 +36,10 @@ public class Config {
         List<String> list = MinimalSkyblock.getInstance().getConfig().getStringList(name);
         list.replaceAll(s -> s.replaceAll("&", "\u00a7"));
         return list;
+    }
+
+    public static int getMaxPlayersOnIsland() {
+        return getInt("settings.max_players_on_island");
     }
 
 }

@@ -1,4 +1,4 @@
-package ru.ucrafter.plugins.minimalskyblock.utils;
+package ru.totalexx.plugins.minimalskyblock.utils;
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.EditSession;
@@ -15,25 +15,24 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.registry.WorldData;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.GlobalProtectedRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.PluginAwareness;
-import ru.ucrafter.plugins.minimalskyblock.MinimalSkyblock;
+import ru.totalexx.plugins.minimalskyblock.MinimalSkyblock;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 public class WorldEditGuard {
 
-    public static boolean createIsland(String nicknameLeader, IslandPosition position) {
+    public static boolean createIsland(IslandPosition position, UUID playerID) {
         File schematic = new File(MinimalSkyblock.getFolder()
                 + File.separator
                 + Config.getString("islands.name_schematic_file")
@@ -45,19 +44,8 @@ public class WorldEditGuard {
             return false;
         }
 
-        World islandsWorld = new BukkitWorld(Config.getIslandsWorld());
-        pasteClipboard(schematic, islandsWorld, position);
-
-        int islandSizeX = Config.getInt("islands.size_x");
-        int islandSizeZ = Config.getInt("islands.size_z");
-        int islandBetween = Config.getInt("islands.distance_between");
-
-        int x1 = (islandSizeX + islandBetween) * position.x + islandSizeX / 2;
-        int z1 = (islandSizeZ + islandBetween) * position.z + islandSizeZ / 2;
-        int x2 = (islandSizeX + islandBetween) * position.x - islandSizeX / 2;
-        int z2 = (islandSizeZ + islandBetween) * position.z - islandSizeZ / 2;
-
-        createRegion(nicknameLeader, x1, z1, x2, z2);
+        createRegion(position, playerID);
+        pasteClipboard(schematic, position);
         return true;
     }
 
@@ -73,34 +61,27 @@ public class WorldEditGuard {
         global.setFlag(DefaultFlag.PVP, StateFlag.State.DENY);
     }
 
-    public static void joinPlayerToRegion(String nicknameLeader, String joinPlayer) {
-        getRegionManager().getRegion("is_" + nicknameLeader).getMembers().addPlayer(joinPlayer);
+    public static void joinPlayerToRegion(int islandID, UUID playerID) {
+        getRegionManager().getRegion("is_" + islandID).getMembers().addPlayer(playerID);
     }
 
-    public static void kickPlayerToRegion(String nicknameLeader, String kickPlayer) {
-        getRegionManager().getRegion("is_" + nicknameLeader).getMembers().removePlayer(kickPlayer);
-    }
-
-    public static boolean getPVP(String nicknameLeader) {
-        ProtectedRegion region = getRegionManager().getRegion("is_" + nicknameLeader);
+    public static boolean getPVP(int islandID) {
+        ProtectedRegion region = getRegionManager().getRegion("is_" + islandID);
         return region.getFlag(DefaultFlag.PVP) == StateFlag.State.ALLOW ? true : false;
     }
 
-    public static void changePVP(String nicknameLeader) {
-        ProtectedRegion region = getRegionManager().getRegion("is_" + nicknameLeader);
+    public static void changePVP(int islandID) {
+        ProtectedRegion region = getRegionManager().getRegion("is_" + islandID);
         StateFlag.State pvpFlag = region.getFlag(DefaultFlag.PVP) == StateFlag.State.ALLOW ?
                 StateFlag.State.DENY : StateFlag.State.ALLOW;
         region.setFlag(DefaultFlag.PVP, pvpFlag);
     }
 
-    public static void softDeleteIsland(String nicknameLeader) {
-        ProtectedRegion region = getRegionManager().getRegion("is_" + nicknameLeader);
-        BlockVector min = region.getMinimumPoint();
-        BlockVector max = region.getMaximumPoint();
-        region = new ProtectedCuboidRegion("sd_" + nicknameLeader + "_" + (int)(Math.random() * 1000000d), min, max);
-        region.setFlag(DefaultFlag.PVP, StateFlag.State.DENY);
-        getRegionManager().removeRegion("is_" + nicknameLeader);
-        getRegionManager().addRegion(region);
+    public static void leaveIsland(int islandID, UUID playerID) {
+        ProtectedRegion region = getRegionManager().getRegion("is_" + islandID);
+        DefaultDomain members = region.getMembers();
+        members.removePlayer(playerID);
+        region.setMembers(members);
     }
 
     private static Clipboard loadClipboard(File file, World world) {
@@ -117,7 +98,8 @@ public class WorldEditGuard {
         return clipboard;
     }
 
-    private static void pasteClipboard(File file, World world, IslandPosition position) {
+    private static void pasteClipboard(File file, IslandPosition position) {
+        World world = new BukkitWorld(Config.getIslandsWorld());
         Clipboard clipboard = loadClipboard(file, world);
 
         if (clipboard == null) {
@@ -148,15 +130,22 @@ public class WorldEditGuard {
         }
     }
 
-    private static void createRegion(String nicknameLeader, int posX1, int posZ1, int posX2, int posZ2) {
-        BlockVector min = new BlockVector(posX1, 0, posZ1);
-        BlockVector max = new BlockVector(posX2, 255, posZ2);
+    private static void createRegion(IslandPosition position, UUID playerID) {
+        int islandSizeX = Config.getInt("islands.size_x");
+        int islandSizeZ = Config.getInt("islands.size_z");
+        int islandBetween = Config.getInt("islands.distance_between");
 
-        ProtectedRegion region = new ProtectedCuboidRegion("is_" + nicknameLeader, min, max);
+        int x1 = (islandSizeX + islandBetween) * position.x + islandSizeX / 2;
+        int z1 = (islandSizeZ + islandBetween) * position.z + islandSizeZ / 2;
+        int x2 = (islandSizeX + islandBetween) * position.x - islandSizeX / 2;
+        int z2 = (islandSizeZ + islandBetween) * position.z - islandSizeZ / 2;
+
+        BlockVector min = new BlockVector(x1, 0, z1);
+        BlockVector max = new BlockVector(x2, 255, z2);
+
+        ProtectedRegion region = new ProtectedCuboidRegion("is_" + position.id, min, max);
         region.setFlag(DefaultFlag.PVP, StateFlag.State.DENY);
-
-        DefaultDomain member = region.getMembers();
-        member.addPlayer(nicknameLeader);
+        region.getMembers().addPlayer(playerID);
 
         getRegionManager().addRegion(region);
     }

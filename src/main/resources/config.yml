@@ -1,32 +1,53 @@
 settings:
   can_not_member_tp_island: false
   print_prefix: true
+  max_players_on_island: 4
 messages:
-  is_not_found: 'У вас нет острова'
-  is_player_not_found: 'Игрок %s не найден'
-  # /is
-  is_create_successfully: 'Вы обнаружили необитаемый остров, пропишите /is, чтобы приплыть на него'
-  is_create_failed: 'Произошла ошибка при создании острова...'
-  is_home: 'Плывём на остров...'
-  # /is tp <player>
-  is_tp_successfully: 'Вы приплыли на остров игрока %s'
-  is_tp_failed_island_not_found: 'У игрока %s нет острова'
-  is_tp_failed_player_not_a_member: 'Вы не можете приплыть на остров игрока %s'
-  # /is allowvisits <boolean>
-  is_allowvisits_true: 'Теперь любые игроки могут посетить ваш остров'
-  is_allowvisits_false: 'Теперь только члены острова могут его посетить'
+  is:
+    not_found: 'У вас нет острова'
+    player_not_found: 'Игрок %s не найден'
 
-  is_howJoinAndKick: 'Чтобы добавить игрока на остров пропишите /is invite <player>. Чтобы удалить - /is kick <player>'
-  # /is join <player>
-  is_join_successfully: 'Игрок %s присоединился к острову'
-  is_join_yourself: 'Вы не можете сделать себя членом острова, так как являетесь его лидером'
-  is_join_already_added: 'Игрок %s уже присоединился к вашему острову'
-  # /is kick <player>
-  is_kick_successfully: 'Игрок %s исключён с острова'
-  is_kick_yourself: 'Вы не можете исключить себя с острова, так как являетесь его лидером'
-  is_kick_player_not_added: 'Игрок %s не является членом острова'
+    # /is
+    create_successfully: 'Вы обнаружили необитаемый остров, пропишите /is, чтобы приплыть на него'
+    create_failed: 'Произошла ошибка при создании острова...'
+    leave: '&4&lВы покинули остров!'
 
-  is_delete: '&4&lВаш остров удалён!'
+    home: 'Плывём на остров...'
+
+    # /is tp <player>
+    tp_successfully: 'Вы приплыли на остров игрока %s'
+    tp_failed_island_not_found: 'У игрока %s нет острова'
+    tp_failed_player_not_a_member: 'Вы не можете приплыть на остров игрока %s'
+
+    howInvite: 'Чтобы пригласить игрока на остров напишите /is invite <player>'
+
+    event:
+      himself: 'Вы не можете отправить приглашение самому себе'
+      cancel: 'Запрос отменён'
+      no_island: 'У игрока нет острова'
+
+    # /is invite <player>
+    invite:
+      successfully_inviter: 'Игрок %s присоединился к острову'
+      successfully_invited: 'Вы присоединились к острову'
+      already_added: 'Игрок %s уже присоединился к вашему острову'
+      already_invited: 'Вы уже отправляли приглашение этому игроку, подождите, прежде чем отправить новое'
+      already_have_island: 'У вас уже есть остров. Чтобы присоединиться к новому, покиньте текущий'
+      send_to_inviter: 'Вы отправили приглашение игроку %s'
+      send_to_invited: '%s пригласил вас присоединиться к острову. Напишите /is inviteaccept %s, чтобы присоединиться.'
+      inviter_has_island: 'Игрок является членом другого острова'
+      not_found: 'Приглашение не найдено'
+      too_many_players: 'К вашему острову присоединилось максимальное количество игроков'
+
+    visit:
+      send_to_visitor: 'Вы отправили запрос на посещение острова игрока %s'
+      send_to_visited: 'Ваш остров хочет посетить %s. Напишите /is visitaccept %s, чтобы принять.'
+      successfully_visitor: 'Вы прибыли на остров игрока %s'
+      successfully_visited: 'Приглашение принято'
+      not_allowed: 'На остров этого игрока нельзя телепортироваться'
+      not_found: 'Запрос не найден'
+
+
   # console
   sender_not_a_player: 'Прости, консолька :('
   # Префикс в чате, при вызове команд
@@ -46,7 +67,7 @@ inv:
     lore:
       - '&7Вы можете включать и выключать PVP на острове'
   set_spawn:
-    name: '&6&lУСТАНОВИТЬ НОВУЮ ТОЧКУ СПАВНА'
+    name: '&6&lУСТАНОВИТЬ НОВУЮ ТОЧКУ СПАВНА ОСТРОВА'
     lore:
       - '&6Новым местом спавна будет ваша текущая позиция'
   members:
@@ -59,20 +80,15 @@ inv:
     anybody: 'Любому игроку'
     by_invitation: 'Только по приглашению'
     nobody: 'Никому'
-  reset_island:
-    name: '&4&lУНИЧТОЖИТЬ ОСТРОВ'
+  leave_island:
+    name: '&4&lПОКИНУТЬ ОСТРОВ'
     lore:
-      - '&4Вы можете начать с чистого листа'
-      - '&4Вещи удалятся, а остров будет сгенерирован заново'
-  delete_island:
-    confirm:
-      name: '&4&lУДАЛИТЬ ОСТРОВ'
-      lore:
-        - '&4Вы потеряете этот этот остров и свои вещи'
+      - '&4Вы не сможете телепортироваться на'
+      -  '&4этот остров, а ваши вещи удалятся'
     cancel:
       name: '&7&lОТМЕНИТЬ'
       lore:
-        - '&7Отменить удаление острова'
+        - '&7Отменить уход с острова'
 islands:
   # Мир, в котором генерируются острова
   world: 'world'

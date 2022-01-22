@@ -1,14 +1,14 @@
-package ru.ucrafter.plugins.minimalskyblock;
+package ru.totalexx.plugins.minimalskyblock;
 
 import java.io.File;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.ucrafter.plugins.minimalskyblock.gui.InventoryGUIListener;
-import ru.ucrafter.plugins.minimalskyblock.utils.Config;
-import ru.ucrafter.plugins.minimalskyblock.utils.IslandDB;
-import ru.ucrafter.plugins.minimalskyblock.utils.WorldEditGuard;
+import ru.totalexx.plugins.minimalskyblock.gui.InventoryGUIListener;
+import ru.totalexx.plugins.minimalskyblock.utils.Config;
+import ru.totalexx.plugins.minimalskyblock.utils.IslandDB;
+import ru.totalexx.plugins.minimalskyblock.utils.WorldEditGuard;
 
 public final class MinimalSkyblock extends JavaPlugin {
 
@@ -21,7 +21,9 @@ public final class MinimalSkyblock extends JavaPlugin {
 
         saveDefaultConfig();
         createNotFoundSchematic();
-        IslandDB.createDB();
+        IslandDB islandDB = new IslandDB();
+        islandDB.createDB();
+        islandDB.closeConnection();
 
         Bukkit.getPluginManager().registerEvents(new InventoryGUIListener(), this);
         getCommand("is").setExecutor(new Commands());
